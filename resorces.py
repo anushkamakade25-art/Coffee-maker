@@ -4,20 +4,7 @@ with open("kitchen.json", "r") as file:
     data = json.load(file)
     print(list(data.values()))
 
-price = 200   
-
-while (data['coffee'] >= 4 and data['sugar'] >= 10 and 
-       data['water'] >= 50 and data['milk'] >= 100 and 
-       data['icecream'] >= 1): 
-    
-    if (data['coffee'] < 4 or data['sugar'] < 10 or
-        data['water'] < 50 or data['milk'] < 100 or
-        data['icecream'] < 1):
-        print("Shop closed. No resources left.")
-        break
-
-    num = int(input("How many coffees do you want?: ")) 
-
+def getNumberOfCoffee():
     possible = 0 
     while (data['coffee'] >= 4*(possible+1) and
            data['sugar'] >= 10*(possible+1) and
@@ -25,9 +12,23 @@ while (data['coffee'] >= 4 and data['sugar'] >= 10 and
            data['milk'] >= 100*(possible+1) and
            data['icecream'] >= 1*(possible+1)):
         possible += 1
+    return possible
 
-    if num <= possible:
-        print(f"{num} coffee is available")
+price = 200   
+
+while (data['coffee'] >= 4 and data['sugar'] >= 10 and 
+       data['water'] >= 50 and data['milk'] >= 100 and 
+       data['icecream'] >= 1): 
+    
+    available = getNumberOfCoffee()  
+    if available == 0:
+        print("Shop closed. No resources left.")
+        break
+
+    num = int(input("How many coffees do you want?: ")) 
+    
+    if num <= available:
+        print(f"{num} coffee(s) is available")
         bill = price * num
         print(f"Here is your bill: {bill}")
        
@@ -41,25 +42,21 @@ while (data['coffee'] >= 4 and data['sugar'] >= 10 and
             json.dump(data, file, indent=4)
 
     else:
-        if possible > 0:
-            print(f"Sorry, {num} coffees cannot be made right now.")
-            choice = input(f"We have only {possible} coffee(s) at this moment. Do you want it? (yes/no): ").strip().lower()
-            
-            if choice == "yes":
-                print("Please wait, we are processing your order")
-                bill = price * possible
-                print(f"Here is your bill: {bill}")
+        print(f"Sorry, {num} coffees cannot be made right now.")
+        choice = input(f"We have only {available} coffee(s) at this moment. Do you want it? (yes/no): ").strip().lower()
+        
+        if choice == "yes":
+            print("Please wait, we are processing your order")
+            bill = price * available
+            print(f"Here is your bill: {bill}")
 
-                # update stock
-                data['coffee'] -= 4 * possible
-                data['sugar'] -= 10 * possible
-                data['water'] -= 50 * possible
-                data['milk'] -= 100 * possible
-                data['icecream'] -= 1 * possible
+            data['coffee'] -= 4 * available
+            data['sugar'] -= 10 * available
+            data['water'] -= 50 * available
+            data['milk'] -= 100 * available
+            data['icecream'] -= 1 * available
 
-                with open("kitchen.json", "w") as file:
-                    json.dump(data, file, indent=4) 
-            else:
-                print("Okay, order cancelled.")
+            with open("kitchen.json", "w") as file:
+                json.dump(data, file, indent=4) 
         else:
-            print("Sorry, no coffee can be made right now.")
+            print("Okay, order cancelled.")
